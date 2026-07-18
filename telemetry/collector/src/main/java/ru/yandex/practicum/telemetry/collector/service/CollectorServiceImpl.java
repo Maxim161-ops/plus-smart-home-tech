@@ -12,14 +12,18 @@ import ru.yandex.practicum.telemetry.collector.mapper.HubEventMapper;
 import ru.yandex.practicum.telemetry.collector.mapper.SensorEventMapper;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CollectorServiceImpl implements CollectorService {
 
-    private static final String SENSOR_EVENTS_TOPIC = "telemetry.sensors.v1";
-    private static final String HUB_EVENTS_TOPIC = "telemetry.hubs.v1";
+    @Value("${kafka.topics.sensor-events}")
+    private String sensorEventsTopic;
+
+    @Value("${kafka.topics.hub-events}")
+    private String hubEventsTopic;
 
     private final Producer<String, SpecificRecordBase> kafkaProducer;
     private final SensorEventMapper sensorEventMapper;
@@ -31,7 +35,7 @@ public class CollectorServiceImpl implements CollectorService {
 
         ProducerRecord<String, SpecificRecordBase> record =
                 new ProducerRecord<>(
-                        SENSOR_EVENTS_TOPIC,
+                        sensorEventsTopic,
                         event.getHubId(),
                         avroEvent
                 );
@@ -65,7 +69,7 @@ public class CollectorServiceImpl implements CollectorService {
 
         ProducerRecord<String, SpecificRecordBase> record =
                 new ProducerRecord<>(
-                        HUB_EVENTS_TOPIC,
+                        hubEventsTopic,
                         event.getHubId(),
                         avroEvent
                 );
