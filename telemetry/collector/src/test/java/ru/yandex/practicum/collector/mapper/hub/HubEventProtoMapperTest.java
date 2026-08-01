@@ -1,4 +1,4 @@
-package ru.yandex.practicum.collector.mapper;
+package ru.yandex.practicum.collector.mapper.hub;
 
 import com.google.protobuf.Timestamp;
 import org.junit.jupiter.api.Test;
@@ -9,12 +9,7 @@ import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.ScenarioAddedEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.ScenarioConditionProto;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceAddedEventAvro;
-import ru.yandex.practicum.kafka.telemetry.event.DeviceTypeAvro;
-import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
-import ru.yandex.practicum.telemetry.collector.mapper.HubEventMapper;
-import ru.yandex.practicum.telemetry.collector.model.hub.DeviceAddedEvent;
-import ru.yandex.practicum.telemetry.collector.model.hub.DeviceType;
+import ru.yandex.practicum.telemetry.collector.mapper.hub.HubEventProtoMapper;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.hub.ScenarioAddedEvent;
 
@@ -26,32 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class HubEventMapperTest {
+class HubEventProtoMapperTest {
 
-    private final HubEventMapper mapper = new HubEventMapper();
-
-    @Test
-    void shouldMapDeviceAddedEventToAvro() {
-        Instant timestamp = Instant.parse("2026-07-16T09:05:00Z");
-
-        DeviceAddedEvent event = new DeviceAddedEvent();
-        event.setHubId("hub-1");
-        event.setTimestamp(timestamp);
-        event.setId("sensor.light.1");
-        event.setDeviceType(DeviceType.LIGHT_SENSOR);
-
-        HubEventAvro result = mapper.toAvro(event);
-
-        assertEquals("hub-1", result.getHubId());
-        assertEquals(timestamp, result.getTimestamp());
-        assertInstanceOf(DeviceAddedEventAvro.class, result.getPayload());
-
-        DeviceAddedEventAvro payload =
-                (DeviceAddedEventAvro) result.getPayload();
-
-        assertEquals("sensor.light.1", payload.getId());
-        assertEquals(DeviceTypeAvro.LIGHT_SENSOR, payload.getType());
-    }
+    private final HubEventProtoMapper mapper =
+            new HubEventProtoMapper();
 
     @Test
     void shouldMapScenarioAddedProtoToModel() {
@@ -93,9 +66,13 @@ class HubEventMapperTest {
         HubEvent result = mapper.toModel(proto);
 
         ScenarioAddedEvent mappedEvent =
-                assertInstanceOf(ScenarioAddedEvent.class, result);
+                assertInstanceOf(
+                        ScenarioAddedEvent.class,
+                        result
+                );
 
         assertEquals("hub-1", mappedEvent.getHubId());
+
         assertEquals(
                 Instant.ofEpochSecond(
                         timestamp.getSeconds(),
@@ -166,4 +143,3 @@ class HubEventMapperTest {
         assertEquals(0, actionWithoutValue.getValue());
     }
 }
-
