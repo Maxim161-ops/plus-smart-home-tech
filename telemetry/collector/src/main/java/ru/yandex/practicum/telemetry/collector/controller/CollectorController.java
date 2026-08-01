@@ -9,8 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
-import ru.yandex.practicum.telemetry.collector.mapper.HubEventMapper;
-import ru.yandex.practicum.telemetry.collector.mapper.SensorEventMapper;
+import ru.yandex.practicum.telemetry.collector.mapper.hub.HubEventProtoMapper;
+import ru.yandex.practicum.telemetry.collector.mapper.sensor.SensorEventProtoMapper;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
 import ru.yandex.practicum.telemetry.collector.service.CollectorService;
@@ -22,8 +22,8 @@ import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc.Coll
 public class CollectorController extends CollectorControllerImplBase {
 
     private final CollectorService collectorService;
-    private final SensorEventMapper sensorEventMapper;
-    private final HubEventMapper hubEventMapper;
+    private final SensorEventProtoMapper sensorEventProtoMapper;
+    private final HubEventProtoMapper hubEventProtoMapper;
 
     @Override
     public void collectSensorEvent(
@@ -59,7 +59,7 @@ public class CollectorController extends CollectorControllerImplBase {
                     );
             }
 
-            SensorEvent sensorEvent = sensorEventMapper.toModel(request);
+            SensorEvent sensorEvent = sensorEventProtoMapper.toModel(request);
             collectorService.collectSensorEvent(sensorEvent);
 
             responseObserver.onNext(Empty.getDefaultInstance());
@@ -88,7 +88,7 @@ public class CollectorController extends CollectorControllerImplBase {
                     request.getPayloadCase()
             );
 
-            HubEvent hubEvent = hubEventMapper.toModel(request);
+            HubEvent hubEvent = hubEventProtoMapper.toModel(request);
             collectorService.collectHubEvent(hubEvent);
 
             responseObserver.onNext(Empty.getDefaultInstance());

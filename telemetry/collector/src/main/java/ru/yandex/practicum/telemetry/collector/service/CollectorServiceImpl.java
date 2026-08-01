@@ -8,8 +8,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
-import ru.yandex.practicum.telemetry.collector.mapper.HubEventMapper;
-import ru.yandex.practicum.telemetry.collector.mapper.SensorEventMapper;
+import ru.yandex.practicum.telemetry.collector.mapper.hub.HubEventAvroMapper;
+import ru.yandex.practicum.telemetry.collector.mapper.sensor.SensorEventAvroMapper;
 import ru.yandex.practicum.telemetry.collector.model.hub.HubEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.SensorEvent;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,12 +26,12 @@ public class CollectorServiceImpl implements CollectorService {
     private String hubEventsTopic;
 
     private final Producer<String, SpecificRecordBase> kafkaProducer;
-    private final SensorEventMapper sensorEventMapper;
-    private final HubEventMapper hubEventMapper;
+    private final SensorEventAvroMapper sensorEventAvroMapper;
+    private final HubEventAvroMapper hubEventAvroMapper;
 
     @Override
     public void collectSensorEvent(SensorEvent event) {
-        SensorEventAvro avroEvent = sensorEventMapper.toAvro(event);
+        SensorEventAvro avroEvent = sensorEventAvroMapper.toAvro(event);
 
         ProducerRecord<String, SpecificRecordBase> record =
                 new ProducerRecord<>(
@@ -65,7 +65,7 @@ public class CollectorServiceImpl implements CollectorService {
 
     @Override
     public void collectHubEvent(HubEvent event) {
-        HubEventAvro avroEvent = hubEventMapper.toAvro(event);
+        HubEventAvro avroEvent = hubEventAvroMapper.toAvro(event);
 
         ProducerRecord<String, SpecificRecordBase> record =
                 new ProducerRecord<>(
