@@ -19,7 +19,6 @@
         <module>telemetry</module>
         <module>infra</module>
         <module>commerce</module>
-        <module>telemetry/aggregator</module>
     </modules>
 
     <properties>
@@ -68,6 +67,12 @@
             <dependency>
                 <groupId>net.devh</groupId>
                 <artifactId>grpc-server-spring-boot-starter</artifactId>
+                <version>${grpc-spring-boot-starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.devh</groupId>
+                <artifactId>grpc-client-spring-boot-starter</artifactId>
                 <version>${grpc-spring-boot-starter.version}</version>
             </dependency>
 
