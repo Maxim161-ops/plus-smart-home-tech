@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
@@ -22,25 +23,32 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AggregationStarter {
 
-    private static final String SENSOR_EVENTS_TOPIC = "telemetry.sensors.v1";
-    private static final String SNAPSHOTS_TOPIC = "telemetry.snapshots.v1";
-
     private static final Duration POLL_TIMEOUT = Duration.ofSeconds(1);
 
     private final KafkaConsumer<String, SensorEventAvro> consumer;
     private final KafkaProducer<String, SensorsSnapshotAvro> producer;
     private final SnapshotService snapshotService;
 
-    /**
-     * Запускает основной цикл обработки событий.
-     */
+    @Value("${kafka.topics.sensors}")
+    private String sensorEventsTopic;
+
+    @Value("${kafka.topics.snapshots}")
+    private String snapshotsTopic;
+
     public void start() {
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(
+                        consumer::wakeup,
+                        "aggregator-shutdown-hook"
+                )
+        );
+
         try {
-            consumer.subscribe(List.of(SENSOR_EVENTS_TOPIC));
+            consumer.subscribe(List.of(sensorEventsTopic));
 
             log.info(
                     "Aggregator подписан на топик {}",
-                    SENSOR_EVENTS_TOPIC
+                    sensorEventsTopic
             );
 
             while (true) {
@@ -109,7 +117,7 @@ public class AggregationStarter {
     ) {
         ProducerRecord<String, SensorsSnapshotAvro> producerRecord =
                 new ProducerRecord<>(
-                        SNAPSHOTS_TOPIC,
+                        snapshotsTopic,
                         event.getHubId().toString(),
                         snapshot
                 );
@@ -138,10 +146,6 @@ public class AggregationStarter {
         );
     }
 
-    /**
-     * Вызывается Spring при завершении приложения.
-     * wakeup прерывает заблокированный вызов consumer.poll().
-     */
     @PreDestroy
     public void stop() {
         log.info("Останавливаем Aggregator");

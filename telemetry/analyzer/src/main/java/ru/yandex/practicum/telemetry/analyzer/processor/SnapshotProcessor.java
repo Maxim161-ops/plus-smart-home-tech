@@ -32,6 +32,13 @@ public class SnapshotProcessor {
     private String snapshotsTopic;
 
     public void start() {
+        Runtime.getRuntime().addShutdownHook(
+                new Thread(
+                        snapshotConsumer::wakeup,
+                        "snapshot-processor-shutdown-hook"
+                )
+        );
+
         try {
             snapshotConsumer.subscribe(
                     List.of(snapshotsTopic)

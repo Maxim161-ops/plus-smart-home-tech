@@ -13,15 +13,9 @@ import java.util.Optional;
 @Service
 public class SnapshotService {
 
-    /*
-     * Ключ — идентификатор хаба.
-     * Значение — последний актуальный снимок состояния этого хаба.
-     */
     private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
 
     /**
-     * Обновляет снапшот на основе нового события датчика.
-     *
      * @param event новое событие датчика
      * @return обновлённый снапшот, если состояние изменилось;
      *         Optional.empty(), если событие нужно проигнорировать
