@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.collector.mapper;
+package ru.yandex.practicum.telemetry.collector.mapper.sensor;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.ClimateSensorAvro;
@@ -15,11 +15,11 @@ import ru.yandex.practicum.telemetry.collector.model.sensor.SwitchSensorEvent;
 import ru.yandex.practicum.telemetry.collector.model.sensor.TemperatureSensorEvent;
 
 @Component
-public class SensorEventMapper {
+public class SensorEventAvroMapper {
 
     /**
-     * Преобразует HTTP-модель события датчика в Avro-модель,
-     * которая затем будет отправлена в Kafka.
+     * Преобразует внутреннюю модель события датчика
+     * в Avro-модель для отправки в Kafka.
      */
     public SensorEventAvro toAvro(SensorEvent event) {
         if (event == null) {
@@ -36,26 +36,22 @@ public class SensorEventMapper {
                 .build();
     }
 
-    /**
-     * Выбирает Avro-модель payload в зависимости от конкретного
-     * класса входящего события.
-     */
     private Object mapPayload(SensorEvent event) {
         return switch (event) {
             case MotionSensorEvent motionEvent ->
-                    mapMotionSensorEvent(motionEvent);
-
-            case LightSensorEvent lightEvent ->
-                    mapLightSensorEvent(lightEvent);
-
-            case ClimateSensorEvent climateEvent ->
-                    mapClimateSensorEvent(climateEvent);
-
-            case SwitchSensorEvent switchEvent ->
-                    mapSwitchSensorEvent(switchEvent);
+                    mapMotionSensor(motionEvent);
 
             case TemperatureSensorEvent temperatureEvent ->
-                    mapTemperatureSensorEvent(temperatureEvent);
+                    mapTemperatureSensor(temperatureEvent);
+
+            case LightSensorEvent lightEvent ->
+                    mapLightSensor(lightEvent);
+
+            case ClimateSensorEvent climateEvent ->
+                    mapClimateSensor(climateEvent);
+
+            case SwitchSensorEvent switchEvent ->
+                    mapSwitchSensor(switchEvent);
 
             default -> throw new IllegalArgumentException(
                     "Неизвестный тип события датчика: "
@@ -64,7 +60,9 @@ public class SensorEventMapper {
         };
     }
 
-    private MotionSensorAvro mapMotionSensorEvent(MotionSensorEvent event) {
+    private MotionSensorAvro mapMotionSensor(
+            MotionSensorEvent event
+    ) {
         return MotionSensorAvro.newBuilder()
                 .setLinkQuality(event.getLinkQuality())
                 .setMotion(event.isMotion())
@@ -72,28 +70,7 @@ public class SensorEventMapper {
                 .build();
     }
 
-    private LightSensorAvro mapLightSensorEvent(LightSensorEvent event) {
-        return LightSensorAvro.newBuilder()
-                .setLinkQuality(event.getLinkQuality())
-                .setLuminosity(event.getLuminosity())
-                .build();
-    }
-
-    private ClimateSensorAvro mapClimateSensorEvent(ClimateSensorEvent event) {
-        return ClimateSensorAvro.newBuilder()
-                .setTemperatureC(event.getTemperatureC())
-                .setHumidity(event.getHumidity())
-                .setCo2Level(event.getCo2Level())
-                .build();
-    }
-
-    private SwitchSensorAvro mapSwitchSensorEvent(SwitchSensorEvent event) {
-        return SwitchSensorAvro.newBuilder()
-                .setState(event.isState())
-                .build();
-    }
-
-    private TemperatureSensorAvro mapTemperatureSensorEvent(
+    private TemperatureSensorAvro mapTemperatureSensor(
             TemperatureSensorEvent event
     ) {
         return TemperatureSensorAvro.newBuilder()
@@ -102,6 +79,33 @@ public class SensorEventMapper {
                 .setTimestamp(event.getTimestamp())
                 .setTemperatureC(event.getTemperatureC())
                 .setTemperatureF(event.getTemperatureF())
+                .build();
+    }
+
+    private LightSensorAvro mapLightSensor(
+            LightSensorEvent event
+    ) {
+        return LightSensorAvro.newBuilder()
+                .setLinkQuality(event.getLinkQuality())
+                .setLuminosity(event.getLuminosity())
+                .build();
+    }
+
+    private ClimateSensorAvro mapClimateSensor(
+            ClimateSensorEvent event
+    ) {
+        return ClimateSensorAvro.newBuilder()
+                .setTemperatureC(event.getTemperatureC())
+                .setHumidity(event.getHumidity())
+                .setCo2Level(event.getCo2Level())
+                .build();
+    }
+
+    private SwitchSensorAvro mapSwitchSensor(
+            SwitchSensorEvent event
+    ) {
+        return SwitchSensorAvro.newBuilder()
+                .setState(event.isState())
                 .build();
     }
 }
