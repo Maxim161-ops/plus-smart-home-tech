@@ -1,30 +1,20 @@
 spring:
   application:
     name: collector
-  config:
-    import: configserver:http://localhost:8888
-  cloud:
-    config:
-      fail-fast: true
-      retry:
-        max-attempts: 6
-        initial-interval: 1000
-        multiplier: 1.1
-        max-interval: 2000
 
+server:
+  port: 8080
+
+grpc:
   server:
-    port: 8080
+    port: 59091
 
-  grpc:
-    server:
-      port: 59091
+kafka:
+  bootstrap-servers: localhost:9092
+  topics:
+    sensor-events: telemetry.sensors.v1
+    hub-events: telemetry.hubs.v1
 
-  kafka:
-    bootstrap-servers: localhost:9092
-    topics:
-      sensor-events: telemetry.sensors.v1
-      hub-events: telemetry.hubs.v1
-
-  logging:
-    level:
-      ru.yandex.practicum.telemetry.collector: DEBUG
+logging:
+  level:
+    ru.yandex.practicum.telemetry.collector: DEBUG
