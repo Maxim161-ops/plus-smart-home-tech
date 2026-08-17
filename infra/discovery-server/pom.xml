@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>config-server</artifactId>
+    <artifactId>discovery-server</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
@@ -18,9 +18,10 @@
     </properties>
 
     <dependencies>
+        <!-- Eureka Server -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-server</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
 
         <dependency>
@@ -31,6 +32,7 @@
 
     <build>
         <plugins>
+            <!-- Сборка исполняемого Spring Boot JAR -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
