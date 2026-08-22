@@ -2,9 +2,6 @@ spring:
   application:
     name: analyzer
 
-kafka:
-  bootstrap-servers: localhost:9092
-
   datasource:
     url: jdbc:postgresql://localhost:5432/smart_home
     username: smart_home
@@ -20,6 +17,9 @@ kafka:
     init:
       mode: always
       schema-locations: classpath:schema.sql
+
+kafka:
+  bootstrap-servers: localhost:9092
 
   consumers:
     hub-events:
