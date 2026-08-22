@@ -10,13 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductCategory;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.QuantityState;
-import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.SetProductQuantityStateRequest;
 import ru.yandex.practicum.commerce.shoppingstore.exception.ProductNotFoundException;
 import ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper;
 import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 import ru.yandex.practicum.commerce.shoppingstore.model.ProductState;
 import ru.yandex.practicum.commerce.shoppingstore.repository.ProductRepository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,29 +29,46 @@ public class ProductService {
     private final ProductMapper productMapper;
 
     @Transactional(readOnly = true)
-    public Page<ProductDto> getProducts(ProductCategory category, int page, int size, List<String> sort) {
+    public Page<ProductDto> getProducts(
+            ProductCategory category,
+            int page,
+            int size,
+            List<String> sort
+    ) {
 
         Sort sorting = Sort.unsorted();
 
         if (sort != null && !sort.isEmpty()) {
-            List<Sort.Order> orders = sort.stream()
-                    .map(value -> {
-                        String[] parts = value.split(",");
 
-                        String property = parts[0];
-
-                        if (parts.length > 1 && parts[1].equalsIgnoreCase("desc")) {
-                            return Sort.Order.desc(property);
-                        }
-
-                        return Sort.Order.asc(property);
-                    })
+            List<String> parts = sort.stream()
+                    .flatMap(value -> Arrays.stream(value.split(",")))
                     .toList();
+
+            List<Sort.Order> orders = new ArrayList<>();
+
+            for (int i = 0; i < parts.size(); i += 2) {
+
+                String property = parts.get(i);
+
+                Sort.Direction direction = Sort.Direction.ASC;
+
+                if (i + 1 < parts.size()
+                        && parts.get(i + 1).equalsIgnoreCase("desc")) {
+
+                    direction = Sort.Direction.DESC;
+                }
+
+                orders.add(new Sort.Order(direction, property));
+            }
 
             sorting = Sort.by(orders);
         }
 
-        Pageable pageable = PageRequest.of(page, size, sorting);
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                sorting
+        );
 
         Page<Product> products = productRepository
                 .findAllByProductCategoryAndProductState(
@@ -79,7 +97,6 @@ public class ProductService {
         Product product = productMapper.toEntity(productDto);
 
         product.setProductId(UUID.randomUUID());
-        product.setProductState(ProductState.ACTIVE);
 
         Product savedProduct = productRepository.save(product);
 
