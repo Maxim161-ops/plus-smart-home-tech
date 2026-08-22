@@ -54,7 +54,6 @@ public class ProductService {
 
                 if (i + 1 < parts.size()
                         && parts.get(i + 1).equalsIgnoreCase("desc")) {
-
                     direction = Sort.Direction.DESC;
                 }
 
@@ -64,16 +63,11 @@ public class ProductService {
             sorting = Sort.by(orders);
         }
 
-        Pageable pageable = PageRequest.of(
-                page,
-                size,
-                sorting
-        );
+        Pageable pageable = PageRequest.of(page, size, sorting);
 
         Page<Product> products = productRepository
-                .findAllByProductCategoryAndProductState(
+                .findAllByProductCategory(
                         productMapper.toModelCategory(category),
-                        ProductState.ACTIVE,
                         pageable
                 );
 
