@@ -1,9 +1,9 @@
 package ru.yandex.practicum.commerce.interaction.client;
 
 import org.springframework.data.domain.Page;
-import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductCategory;
-import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.SetProductQuantityStateRequest;
+import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
+import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.QuantityState;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,8 @@ public interface ShoppingStoreClient {
     boolean removeProductFromStore(UUID productId);
 
     boolean setProductQuantityState(
-            SetProductQuantityStateRequest request
+            UUID productId,
+            QuantityState quantityState
     );
 
     ProductDto getProduct(UUID productId);

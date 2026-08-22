@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductCategory;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
+import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.QuantityState;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.SetProductQuantityStateRequest;
 import ru.yandex.practicum.commerce.shoppingstore.exception.ProductNotFoundException;
 import ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper;
@@ -128,15 +129,18 @@ public class ProductService {
     }
 
     @Transactional
-    public boolean setProductQuantityState(SetProductQuantityStateRequest request) {
+    public boolean setProductQuantityState(
+            UUID productId,
+            QuantityState quantityState
+    ) {
 
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() ->
-                        new ProductNotFoundException(request.getProductId())
+                        new ProductNotFoundException(productId)
                 );
 
         product.setQuantityState(
-                productMapper.toModelQuantityState(request.getQuantityState())
+                productMapper.toModelQuantityState(quantityState)
         );
 
         productRepository.save(product);

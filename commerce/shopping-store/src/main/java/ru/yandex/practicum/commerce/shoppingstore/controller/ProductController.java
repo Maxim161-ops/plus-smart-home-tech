@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.interaction.client.ShoppingStoreClient;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductCategory;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
+import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.QuantityState;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.SetProductQuantityStateRequest;
 import ru.yandex.practicum.commerce.shoppingstore.service.ProductService;
 
@@ -63,9 +64,13 @@ public class ProductController implements ShoppingStoreClient {
     @Override
     @PostMapping("/quantityState")
     public boolean setProductQuantityState(
-            @Valid @RequestBody SetProductQuantityStateRequest request
+            @RequestParam UUID productId,
+            @RequestParam QuantityState quantityState
     ) {
-        return productService.setProductQuantityState(request);
+        return productService.setProductQuantityState(
+                productId,
+                quantityState
+        );
     }
 
     @Override
