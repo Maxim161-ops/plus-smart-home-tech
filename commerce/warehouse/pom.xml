@@ -83,8 +83,6 @@
     </dependencies>
 
     <build>
-        <finalName>inventory-service-${project.version}</finalName>
-
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
