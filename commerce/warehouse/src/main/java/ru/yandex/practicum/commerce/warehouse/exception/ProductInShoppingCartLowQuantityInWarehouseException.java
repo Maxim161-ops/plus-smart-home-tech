@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.UUID;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.CONFLICT)
 public class ProductInShoppingCartLowQuantityInWarehouseException extends RuntimeException {
 
     public ProductInShoppingCartLowQuantityInWarehouseException(UUID productId) {

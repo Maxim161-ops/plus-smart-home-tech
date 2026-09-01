@@ -28,6 +28,10 @@ public class WarehouseProduct {
     @Column(name = "quantity", nullable = false)
     private Long quantity;
 
+    @Builder.Default
+    @Column(name = "reserved_quantity", nullable = false)
+    private Long reservedQuantity = 0L;
+
     @Column(name = "width", nullable = false)
     private Double width;
 

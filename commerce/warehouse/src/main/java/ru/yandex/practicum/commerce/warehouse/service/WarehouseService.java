@@ -8,12 +8,14 @@ import ru.yandex.practicum.commerce.interaction.dto.warehouse.AddProductToWareho
 import ru.yandex.practicum.commerce.interaction.dto.warehouse.AddressDto;
 import ru.yandex.practicum.commerce.interaction.dto.warehouse.BookedProductsDto;
 import ru.yandex.practicum.commerce.interaction.dto.warehouse.NewProductInWarehouseRequest;
+import ru.yandex.practicum.commerce.warehouse.exception.NotEnoughReservedProductException;
 import ru.yandex.practicum.commerce.warehouse.mapper.WarehouseMapper;
 import ru.yandex.practicum.commerce.warehouse.model.WarehouseProduct;
 import ru.yandex.practicum.commerce.warehouse.repository.WarehouseRepository;
 import ru.yandex.practicum.commerce.warehouse.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.commerce.warehouse.exception.ProductInShoppingCartLowQuantityInWarehouseException;
 import ru.yandex.practicum.commerce.warehouse.exception.SpecifiedProductAlreadyInWarehouseException;
+import ru.yandex.practicum.commerce.interaction.dto.warehouse.ProductQuantityRequest;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -60,9 +62,7 @@ public class WarehouseService {
     }
 
     @Transactional(readOnly = true)
-    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(
-            ShoppingCartDto shoppingCart
-    ) {
+    public BookedProductsDto checkProductQuantityEnoughForShoppingCart(ShoppingCartDto shoppingCart) {
 
         double deliveryWeight = 0.0;
         double deliveryVolume = 0.0;
@@ -114,6 +114,47 @@ public class WarehouseService {
                 .house(CURRENT_ADDRESS)
                 .flat(CURRENT_ADDRESS)
                 .build();
+    }
+
+    @Transactional
+    public void reserveProduct(ProductQuantityRequest request) {
+
+        WarehouseProduct product =
+                getProductOrThrow(request.getProductId());
+
+        long availableQuantity =
+                product.getQuantity() - product.getReservedQuantity();
+
+        if (availableQuantity < request.getQuantity()) {
+            throw new ProductInShoppingCartLowQuantityInWarehouseException(
+                    request.getProductId()
+            );
+        }
+
+        product.setReservedQuantity(
+                product.getReservedQuantity() + request.getQuantity()
+        );
+
+        warehouseRepository.save(product);
+    }
+
+    @Transactional
+    public void releaseProduct(ProductQuantityRequest request) {
+
+        WarehouseProduct product =
+                getProductOrThrow(request.getProductId());
+
+        if (product.getReservedQuantity() < request.getQuantity()) {
+            throw new NotEnoughReservedProductException(
+                    request.getProductId()
+            );
+        }
+
+        product.setReservedQuantity(
+                product.getReservedQuantity() - request.getQuantity()
+        );
+
+        warehouseRepository.save(product);
     }
 
     private WarehouseProduct getProductOrThrow(UUID productId) {

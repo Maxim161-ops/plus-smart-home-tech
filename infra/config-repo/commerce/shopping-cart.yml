@@ -17,6 +17,19 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
 
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 1000
+            readTimeout: 2000
+
+          warehouse:
+            connectTimeout: 1000
+            readTimeout: 2000
+            loggerLevel: BASIC
+
 server:
   port: 0
 
@@ -24,3 +37,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    ru.yandex.practicum.commerce.interaction.client.WarehouseClient: DEBUG

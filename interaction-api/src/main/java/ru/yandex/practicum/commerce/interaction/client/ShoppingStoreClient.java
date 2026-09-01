@@ -1,32 +1,52 @@
 package ru.yandex.practicum.commerce.interaction.client;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductCategory;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.ProductDto;
 import ru.yandex.practicum.commerce.interaction.dto.shoppingstore.QuantityState;
+import org.springframework.cloud.openfeign.FeignClient;
 
 import java.util.List;
 import java.util.UUID;
 
+@FeignClient(
+        name = "shopping-store",
+        path = "/api/v1/shopping-store"
+)
 public interface ShoppingStoreClient {
 
+    @GetMapping
     Page<ProductDto> getProducts(
-            ProductCategory category,
-            int page,
-            int size,
-            List<String> sort
+            @RequestParam ProductCategory category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) List<String> sort
     );
 
-    ProductDto createNewProduct(ProductDto productDto);
+    @PutMapping
+    ProductDto createNewProduct(
+            @RequestBody ProductDto productDto
+    );
 
-    ProductDto updateProduct(ProductDto productDto);
+    @PostMapping
+    ProductDto updateProduct(
+            @RequestBody ProductDto productDto
+    );
 
-    boolean removeProductFromStore(UUID productId);
+    @PostMapping("/removeProductFromStore")
+    boolean removeProductFromStore(
+            @RequestBody UUID productId
+    );
 
+    @PostMapping("/quantityState")
     boolean setProductQuantityState(
-            UUID productId,
-            QuantityState quantityState
+            @RequestParam UUID productId,
+            @RequestParam QuantityState quantityState
     );
 
-    ProductDto getProduct(UUID productId);
+    @GetMapping("/{productId}")
+    ProductDto getProduct(
+            @PathVariable UUID productId
+    );
 }
