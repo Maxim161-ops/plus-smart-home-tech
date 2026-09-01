@@ -88,6 +88,8 @@
     </dependencies>
 
     <build>
+        <finalName>order-service-${project.version}</finalName>
+
         <plugins>
 
             <plugin>
