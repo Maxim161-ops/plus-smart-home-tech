@@ -1,0 +1,116 @@
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+
+      routes:
+        - id: shopping-store-read
+          uri: lb://shopping-store
+          predicates:
+            - Path=/api/v1/shopping-store,/api/v1/shopping-store/**
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                retries: 2
+                statuses:
+                  - BAD_GATEWAY
+                  - SERVICE_UNAVAILABLE
+                  - GATEWAY_TIMEOUT
+                methods:
+                  - GET
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 500ms
+
+        - id: shopping-store
+          uri: lb://shopping-store
+          predicates:
+            - Path=/api/v1/shopping-store,/api/v1/shopping-store/**
+
+        - id: warehouse-read
+          uri: lb://warehouse
+          predicates:
+            - Path=/api/v1/warehouse,/api/v1/warehouse/**
+            - Method=GET
+          filters:
+            - name: Retry
+              args:
+                retries: 2
+                statuses:
+                  - BAD_GATEWAY
+                  - SERVICE_UNAVAILABLE
+                  - GATEWAY_TIMEOUT
+                methods:
+                  - GET
+                backoff:
+                  firstBackoff: 100ms
+                  maxBackoff: 500ms
+
+        - id: warehouse
+          uri: lb://warehouse
+          predicates:
+            - Path=/api/v1/warehouse,/api/v1/warehouse/**
+
+        - id: shopping-cart
+          uri: lb://shopping-cart
+          predicates:
+            - Path=/api/v1/shopping-cart,/api/v1/shopping-cart/**
+
+        - id: order
+          uri: lb://order
+          predicates:
+            - Path=/order,/order/**
+          filters:
+            - PrefixPath=/api/v1
+
+        - id: payment
+          uri: lb://payment
+          predicates:
+            - Path=/payment,/payment/**
+          filters:
+            - PrefixPath=/api/v1
+
+        - id: delivery
+          uri: lb://delivery
+          predicates:
+            - Path=/delivery,/delivery/**
+          filters:
+            - PrefixPath=/api/v1
+
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - http://localhost:3000
+              - http://localhost:5173
+              - http://localhost:8443
+
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+
+            allowed-headers:
+              - '*'
+
+            exposed-headers:
+              - Location
+
+            allow-credentials: true
+            max-age: 3600
