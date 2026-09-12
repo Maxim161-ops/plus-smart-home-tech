@@ -2,6 +2,7 @@ package ru.yandex.practicum.commerce.warehouse.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.commerce.interaction.client.WarehouseClient;
@@ -11,7 +12,13 @@ import ru.yandex.practicum.commerce.interaction.dto.warehouse.AddressDto;
 import ru.yandex.practicum.commerce.interaction.dto.warehouse.BookedProductsDto;
 import ru.yandex.practicum.commerce.interaction.dto.warehouse.NewProductInWarehouseRequest;
 import ru.yandex.practicum.commerce.warehouse.service.WarehouseService;
+import ru.yandex.practicum.commerce.interaction.dto.warehouse.AssemblyProductsForOrderRequest;
+import ru.yandex.practicum.commerce.interaction.dto.warehouse.ShippedToDeliveryRequest;
 
+import java.util.Map;
+import java.util.UUID;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/warehouse")
 @RequiredArgsConstructor
@@ -44,5 +51,32 @@ public class WarehouseController implements WarehouseClient {
     @Override
     public AddressDto getWarehouseAddress() {
         return warehouseService.getWarehouseAddress();
+    }
+
+    @Override
+    public BookedProductsDto assemblyProductsForOrder(
+            AssemblyProductsForOrderRequest request
+    ) {
+        log.info(
+                "Получен запрос на сборку заказа: orderId={}, products={}",
+                request.getOrderId(),
+                request.getProducts()
+        );
+
+        return warehouseService.assemblyProductsForOrder(request);
+    }
+
+    @Override
+    public void shippedToDelivery(
+            @Valid ShippedToDeliveryRequest request
+    ) {
+        warehouseService.shippedToDelivery(request);
+    }
+
+    @Override
+    public void acceptReturn(
+            Map<UUID, Long> products
+    ) {
+        warehouseService.acceptReturn(products);
     }
 }
